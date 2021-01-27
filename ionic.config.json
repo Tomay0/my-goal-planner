@@ -1,0 +1,8 @@
+{
+  "name": "My Goal Planner",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react",
+  "id": "9173e052"
+}
