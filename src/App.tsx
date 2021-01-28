@@ -1,19 +1,8 @@
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import React, { useRef, useState } from 'react';
 import {
-  IonApp,
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs
+  IonAlert,
+  IonApp, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonRow, IonTitle, IonToolbar
 } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -34,33 +23,77 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route path="/tab1" component={Tab1} exact={true} />
-          <Route path="/tab2" component={Tab2} exact={true} />
-          <Route path="/tab3" component={Tab3} />
-          <Route path="/" render={() => <Redirect to="/tab1" />} exact={true} />
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+/* Components */
+import BmiResult from './components/BmiResult';
+import BmiSubmit from './components/BmiSubmit';
+
+const App: React.FC = () => {
+  const [yourBmi, setBmi] = useState<number>();
+  const [error, setError] = useState<string>();
+
+  const heightRef = useRef<HTMLIonInputElement>(null);
+  const massRef = useRef<HTMLIonInputElement>(null);
+
+  function calcBMI() {
+    const height = heightRef.current!.value; // ! means that this should never be null
+    const mass = massRef.current!.value;
+
+    // check for null and negative
+    if (!height || !mass || +height <= 0 || +mass <= 0) {
+      setError("Enter a valid number for both fields!")
+      return;
+    }
+    const bmi: number = +mass / (+height * +height);
+
+
+    // check for NaN
+    if (isNaN(bmi)) {
+      setError("Enter a valid number for both fields!")
+      return;
+    }
+
+    setBmi(bmi);
+  }
+
+  function clearError() {
+    setError('');
+  }
+
+  return (
+    <React.Fragment>
+      <IonAlert isOpen={!!error} message={error} buttons={[{ text: 'OK', handler: clearError }]} />
+
+      <IonApp>
+        <IonHeader>
+          <IonToolbar color="primary">
+            <IonTitle>BMI Calculator</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonGrid>
+            <IonRow>
+              <IonCol>
+                <IonItem>
+                  <IonLabel position="floating">Your height (m)</IonLabel>
+                  <IonInput ref={heightRef}></IonInput>
+                </IonItem>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol>
+                <IonItem>
+                  <IonLabel position="floating">Your mass (kg)</IonLabel>
+                  <IonInput ref={massRef}></IonInput>
+                </IonItem>
+              </IonCol>
+            </IonRow>
+            <BmiSubmit calcBMI={calcBMI} />
+            {yourBmi && <BmiResult yourBmi={yourBmi} />}
+          </IonGrid>
+        </IonContent>
+      </IonApp>
+    </React.Fragment>
+  )
+};
 
 export default App;
