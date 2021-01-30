@@ -1,22 +1,30 @@
-import { IonPage } from '@ionic/react';
+import { IonButton, IonCard, IonHeader, IonIcon, IonLabel, IonPage } from '@ionic/react';
 import React from 'react';
+import { Goal, GoalList } from '../goal';
+import { addOutline } from 'ionicons/icons';
 
-import GoalList from '../goal';
+const GoalPane: React.FC<{ goal: Goal }> = props => {
+    return (
+        <IonCard>
+            <IonHeader>
+                {props.goal.name}
+            </IonHeader>
+        </IonCard>
+    );
+}
 
-class GoalCreator extends React.Component<{ goals: GoalList }, { goals: GoalList }> {
-    constructor(props: { goals: GoalList }) {
-        super(props);
+const GoalCreator: React.FC = () => {
 
-        this.setState({ goals: props.goals });
-    }
+    return (
+        <IonPage>
 
-    render() {
-        return (
-            <IonPage>
-                <h1>TODO: Goal Creator</h1>
-            </IonPage>
-        );
-    }
+            <IonButton color="primary">
+                <IonIcon icon={addOutline} slot='start' />
+                <IonLabel>Add Goal</IonLabel>
+            </IonButton>
+
+        </IonPage>
+    );
 }
 
 export default GoalCreator;
