@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
-  IonAlert,
-  IonApp, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonRow, IonTitle, IonToolbar
+  IonApp, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs
 } from '@ionic/react';
 
 /* Core CSS required for Ionic components to work properly */
@@ -23,9 +22,12 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-/* Components */
-import BmiResult from './components/BmiResult';
-import BmiSubmit from './components/BmiSubmit';
+/* Pages */
+import CheckList from './pages/checklist';
+import GoalCreator from './pages/goal-creator';
+import ProgressTracker from './pages/progress-tracker';
+import { IonReactRouter } from '@ionic/react-router';
+import { Redirect, Route } from 'react-router';
 
 const App: React.FC = () => {
   const [yourBmi, setBmi] = useState<number>();
@@ -60,39 +62,30 @@ const App: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
-      <IonAlert isOpen={!!error} message={error} buttons={[{ text: 'OK', handler: clearError }]} />
+    <IonApp>
+      <IonReactRouter>
+        <IonTabs >
+          <IonRouterOutlet>
+            <Route path='/checklist' component={CheckList} exact={true} />
+            <Route path='/progress-tracker' component={ProgressTracker} exact={true} />
+            <Route path='/goal-creator' component={GoalCreator} exact={true} />
+            <Route path='/' render={() => <Redirect to='/checklist' />} exact={true} />
+          </IonRouterOutlet>
+          <IonTabBar slot='top'>
+            <IonTabButton tab='checklist' href='/checklist'>
+              <IonLabel>Checklist</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab='progress-tracker' href='/progress-tracker'>
+              <IonLabel>Progress Tracker</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab='goal-creator' href='/goal-creator'>
+              <IonLabel>Goal Creator</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonReactRouter>
 
-      <IonApp>
-        <IonHeader>
-          <IonToolbar color="primary">
-            <IonTitle>BMI Calculator</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonGrid>
-            <IonRow>
-              <IonCol>
-                <IonItem>
-                  <IonLabel position="floating">Your height (m)</IonLabel>
-                  <IonInput ref={heightRef}></IonInput>
-                </IonItem>
-              </IonCol>
-            </IonRow>
-            <IonRow>
-              <IonCol>
-                <IonItem>
-                  <IonLabel position="floating">Your mass (kg)</IonLabel>
-                  <IonInput ref={massRef}></IonInput>
-                </IonItem>
-              </IonCol>
-            </IonRow>
-            <BmiSubmit calcBMI={calcBMI} />
-            {yourBmi && <BmiResult yourBmi={yourBmi} />}
-          </IonGrid>
-        </IonContent>
-      </IonApp>
-    </React.Fragment>
+    </IonApp>
   )
 };
 
