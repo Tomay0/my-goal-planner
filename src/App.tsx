@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import {
   IonApp, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs
 } from '@ionic/react';
@@ -34,9 +34,23 @@ import { GoalList, Goal, isGoalList } from './goal';
 
 
 class App extends React.Component<{}, { goalList: GoalList }> {
+
+  constructor(props: {}) {
+    super(props);
+
+    // bind updateState function
+    this.updateState = this.updateState.bind(this);
+  }
+
+
+  /**
+   * When the component mounts - load your goals.
+   */
   componentDidMount() {
+    // load goal list from local storage
     const jsonString = localStorage.getItem('goal-list');
-    if(jsonString === 'string') {
+
+    if (typeof jsonString === 'string') {
       const goals = JSON.parse(jsonString);
 
       if (isGoalList(goals)) {
@@ -45,15 +59,23 @@ class App extends React.Component<{}, { goalList: GoalList }> {
       }
     }
 
-    const goalList: GoalList = {goals: new Array<Goal>()};
-    this.updateState(goalList);
+    // the goal list from local storage does not exist. Create empty goal list.
+    const goalList: GoalList = { goals: new Array<Goal>() };
+    this.setState({ goalList: goalList });
   }
 
+  /**
+   * Update local storage with new list of goals
+   * @param goalList new list of goals
+   */
   updateState(goalList: GoalList) {
-    this.setState({goalList});
+    this.setState({ goalList });
     localStorage.setItem('goal-list', JSON.stringify(goalList));
   }
 
+  /**
+   * Render the application
+   */
   render() {
     return (
       <IonApp>
@@ -62,7 +84,9 @@ class App extends React.Component<{}, { goalList: GoalList }> {
             <IonRouterOutlet>
               <Route path='/checklist' component={CheckList} exact={true} />
               <Route path='/progress-tracker' component={ProgressTracker} exact={true} />
-              <Route path='/goal-creator' component={GoalCreator} exact={true} />
+              <Route path='/goal-creator' render={
+                () => <GoalCreator goalList={this.state.goalList} updateState={this.updateState} />
+              } exact={true} />
               <Route path='/' render={() => <Redirect to='/checklist' />} exact={true} />
             </IonRouterOutlet>
             <IonTabBar slot='top'>
