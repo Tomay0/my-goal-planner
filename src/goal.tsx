@@ -13,6 +13,7 @@ export type Task = DurationTask | CompletionTask;
  * Task based on duration. Required you do a certain amount of this activity either daily, weekly or monthly.
  */
 export interface DurationTask {
+    id: number;
     name: string;
     completionRate: CompletionRate;
     targetDuration: number;
@@ -22,6 +23,7 @@ export interface DurationTask {
  * A task which requires a certain number of completions. Either monthly or weekly.
  */
 export interface CompletionTask {
+    id: number;
     name: string;
     completionRate: CompletionRate;
     targetCount: number;
@@ -41,7 +43,7 @@ export interface Goal {
 export function isCompletionTask(arg: any): arg is CompletionTask {
     const completionTask: CompletionTask = arg;
 
-    return completionTask.hasOwnProperty('name') && completionTask.hasOwnProperty('completionRate') &&
+    return completionTask.hasOwnProperty('id') && completionTask.hasOwnProperty('name') && completionTask.hasOwnProperty('completionRate') &&
         completionTask.hasOwnProperty('targetCount') && completionTask.hasOwnProperty('showDetails');
 }
 
@@ -49,7 +51,7 @@ export function isCompletionTask(arg: any): arg is CompletionTask {
 export function isDurationTask(arg: any): arg is DurationTask {
     const durationTask: DurationTask = arg;
 
-    return durationTask.hasOwnProperty('name') && durationTask.hasOwnProperty('completionRate') &&
+    return durationTask.hasOwnProperty('id') && durationTask.hasOwnProperty('name') && durationTask.hasOwnProperty('completionRate') &&
         durationTask.hasOwnProperty('targetDuration');
 }
 
@@ -62,10 +64,15 @@ export function isDurationTask(arg: any): arg is DurationTask {
 export function isGoalList(arg: any): arg is GoalList {
     const goalList: GoalList = arg;
 
-    return goalList.goals instanceof Array;
+    return goalList.goals instanceof Array && goalList.hasOwnProperty('tasks');
+}
+
+export interface TaskMap {
+    [taskId: number]: Task
 }
 
 
 export interface GoalList {
     goals: Array<Goal>;
+    tasks: TaskMap;
 }

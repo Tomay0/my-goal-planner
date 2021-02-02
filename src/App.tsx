@@ -31,15 +31,17 @@ import ProgressTracker from './pages/progress-tracker';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router';
 import { GoalList, Goal, isGoalList } from './goal';
+import { ProgressList, isProgressList } from './progress';
 
 
-class App extends React.Component<{}, { goalList: GoalList }> {
+class App extends React.Component<{}, { goalList: GoalList, progressList: ProgressList }> {
 
   constructor(props: {}) {
     super(props);
 
     // bind updateState function
-    this.updateState = this.updateState.bind(this);
+    this.updateGoals = this.updateGoals.bind(this);
+    this.updateProgress = this.updateProgress.bind(this);
   }
 
 
@@ -47,30 +49,53 @@ class App extends React.Component<{}, { goalList: GoalList }> {
    * When the component mounts - load your goals.
    */
   componentDidMount() {
-    // load goal list from local storage
-    const jsonString = localStorage.getItem('goal-list');
+    let goalList: GoalList = { goals: new Array<Goal>(), tasks: {} };
+    let progressList: ProgressList = {};
 
-    if (typeof jsonString === 'string') {
-      const goals = JSON.parse(jsonString);
+
+    // load goal list from local storage
+    const goalListString = localStorage.getItem('goal-list');
+
+    if (typeof goalListString === 'string') {
+      const goals = JSON.parse(goalListString);
 
       if (isGoalList(goals)) {
-        this.setState({ goalList: goals });
-        return;
+        goalList = goals;
+      }
+    }
+    
+    // load progress list from local storage
+    const progressListString = localStorage.getItem('progress-list');
+
+    if (typeof progressListString === 'string') {
+      const progress = JSON.parse(progressListString);
+
+      if (isProgressList(progress)) {
+        progressList = progress;
       }
     }
 
     // the goal list from local storage does not exist. Create empty goal list.
-    const goalList: GoalList = { goals: new Array<Goal>() };
-    this.setState({ goalList: goalList });
+    this.setState({ goalList, progressList });
   }
 
   /**
    * Update local storage with new list of goals
    * @param goalList new list of goals
    */
-  updateState(goalList: GoalList) {
-    this.setState({ goalList });
+  updateGoals(goalList: GoalList) {
+    this.setState({ goalList, progressList: this.state.progressList });
     localStorage.setItem('goal-list', JSON.stringify(goalList));
+  }
+
+  /**
+   * Update local storage with new list of progress
+   * @param progressList new list of progress
+   */
+  updateProgress(progressList: ProgressList) {
+    this.setState({ goalList: this.state.goalList, progressList });
+    localStorage.setItem('progress-list', JSON.stringify(progressList));
+      
   }
 
   /**
@@ -82,10 +107,12 @@ class App extends React.Component<{}, { goalList: GoalList }> {
         <IonReactRouter>
           <IonTabs >
             <IonRouterOutlet>
-              <Route path='/checklist' component={CheckList} exact={true} />
+              <Route path='/checklist' render={
+                () => <CheckList goalList={this.state.goalList} progressList={this.state.progressList} updateProgress={this.updateProgress} />
+              } exact={true} />
               <Route path='/progress-tracker' component={ProgressTracker} exact={true} />
               <Route path='/goal-creator' render={
-                () => <GoalCreator goalList={this.state.goalList} updateState={this.updateState} />
+                () => <GoalCreator goalList={this.state.goalList} updateGoals={this.updateGoals} />
               } exact={true} />
               <Route path='/' render={() => <Redirect to='/checklist' />} exact={true} />
             </IonRouterOutlet>

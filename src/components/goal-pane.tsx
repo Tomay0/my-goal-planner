@@ -8,7 +8,8 @@ import TaskPane from './task-pane';
  * Pane containing one goal
  * @param props goal object
  */
-const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, update: () => void }> = props => {
+const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, insertTask: (task: Task) => void,
+    removeTask: (taskId: number) => void, assignTaskID: (task: Task) => void, update: () => void }> = props => {
     function updateName(name: string) {
         props.goal.name = name;
 
@@ -17,11 +18,12 @@ const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, update:
 
     // add new task to list of tasks
     function newTask() {
-        const task: DurationTask = { name: "New Task", completionRate: CompletionRate.Weekly, targetDuration: 60 };
+        // note that the ID of '0' will be changed
+        const task: DurationTask = { id: 0, name: "New Task", completionRate: CompletionRate.Weekly, targetDuration: 60 };
 
         props.goal.tasks.push(task);
 
-        props.update();
+        props.assignTaskID(task);
     }
 
     // update the task in the list
@@ -31,8 +33,8 @@ const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, update:
         if (index > -1) {
             props.goal.tasks[index] = task;
         }
-
-        props.update();
+        
+        props.insertTask(task);
     }
 
     // remove task from list of tasks
@@ -43,7 +45,7 @@ const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, update:
             props.goal.tasks.splice(index, 1);
         }
 
-        props.update();
+        props.removeTask(task.id);
     }
 
     return (

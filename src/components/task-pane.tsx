@@ -1,7 +1,7 @@
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonItem, IonLabel, IonPage, IonRow, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonIcon, IonInput, IonItem, IonLabel, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/react';
 import React from 'react';
-import { Goal, GoalList, CompletionTask, DurationTask, Task, CompletionRate, isCompletionTask, isDurationTask } from '../goal';
-import { addOutline, closeOutline } from 'ionicons/icons';
+import { CompletionTask, DurationTask, Task, isCompletionTask, isDurationTask } from '../goal';
+import { closeOutline } from 'ionicons/icons';
 
 /**
  * Panel which allows you to edit a task
@@ -25,8 +25,9 @@ const TaskPane: React.FC<{
         // singular completion type - note that daily is non selectable
         if (type == "completion") {
             const task: CompletionTask = {
+                id: props.task.id,
                 name: props.task.name,
-                completionRate: props.task.completionRate == 1 ? 2 : props.task.completionRate,
+                completionRate: props.task.completionRate,
                 targetCount: 1,
                 showDetails: true
             };
@@ -36,6 +37,7 @@ const TaskPane: React.FC<{
         // 
         else {
             const task: DurationTask = {
+                id: props.task.id,
                 name: props.task.name,
                 completionRate: props.task.completionRate,
                 targetDuration: 60
@@ -85,20 +87,17 @@ const TaskPane: React.FC<{
                 <IonSegment onIonChange={e => { selectTaskType(e.detail.value!); }}
                     value={isCompletionTask(props.task) ? "completion" : "duration"}>
                     <IonSegmentButton value="duration">
-                        Duration based
+                        Duration
                     </IonSegmentButton>
                     <IonSegmentButton value="completion">
-                        Singular completion
+                        Completion
                     </IonSegmentButton>
                 </IonSegment>
                 <IonSegment onIonChange={e => { selectTaskCompletionRate(+e.detail.value!); }}
                     value={props.task.completionRate + ""}>
-                    {
-                        isDurationTask(props.task) &&
-                        <IonSegmentButton value="1">
-                            Daily
-                        </IonSegmentButton>
-                    }
+                    <IonSegmentButton value="1">
+                        Daily
+                    </IonSegmentButton>
                     <IonSegmentButton value="2">
                         Weekly
                     </IonSegmentButton>

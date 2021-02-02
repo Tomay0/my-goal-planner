@@ -1,7 +1,11 @@
 import { IonPage } from '@ionic/react';
 import React from 'react';
+import { Goal, GoalList } from '../goal';
+import { ProgressList } from '../progress';
 
-class CheckList extends React.Component {
+class CheckList extends React.Component<{
+    goalList: GoalList, progressList: ProgressList, updateProgress: (progressList: ProgressList) => void
+}, { progressList: ProgressList }> {
 
     render() {
         return (
