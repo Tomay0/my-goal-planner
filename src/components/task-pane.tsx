@@ -23,7 +23,7 @@ const TaskPane: React.FC<{
     // change the task type
     function selectTaskType(type: string) {
         // singular completion type - note that daily is non selectable
-        if (type == "completion") {
+        if (type === "completion") {
             const task: CompletionTask = {
                 id: props.task.id,
                 name: props.task.name,
