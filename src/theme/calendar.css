@@ -1,0 +1,8 @@
+.calendar-card {
+    padding: 10px;
+    margin: 0 !important;
+}
+
+.calendar-card.different-month {
+    color: #ddd;
+}

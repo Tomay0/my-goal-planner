@@ -3,6 +3,7 @@ import React from 'react';
 import { Goal, GoalList, Task } from '../goal';
 import { addOutline } from 'ionicons/icons';
 import GoalPane from '../components/goal-pane';
+import { formatDate } from '../progress';
 
 
 /**
@@ -34,7 +35,11 @@ class GoalCreator extends React.Component<{
      */
     newGoal() {
         const goalList: GoalList = this.state?.goalList;
-        const newGoal: Goal = { name: "New Goal", tasks: [] };
+
+        const startDate = new Date();
+        const endDate = new Date(startDate.getFullYear() + 1, 1, 0);
+
+        const newGoal: Goal = { name: "New Goal", startDate: formatDate(startDate), endDate: formatDate(endDate), tasks: [] };
 
         goalList.goals.push(newGoal);
 

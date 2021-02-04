@@ -110,7 +110,9 @@ class App extends React.Component<{}, { goalList: GoalList, progressList: Progre
               <Route path='/checklist' render={
                 () => <CheckList goalList={this.state.goalList} progressList={this.state.progressList} updateProgress={this.updateProgress} />
               } exact={true} />
-              <Route path='/progress-tracker' component={ProgressTracker} exact={true} />
+              <Route path='/progress-tracker' render={
+                () => <ProgressTracker goalList={this.state.goalList} progressList={this.state.progressList} />
+              } exact={true} />
               <Route path='/goal-creator' render={
                 () => <GoalCreator goalList={this.state.goalList} updateGoals={this.updateGoals} />
               } exact={true} />

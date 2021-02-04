@@ -1,8 +1,9 @@
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonIcon, IonInput, IonLabel, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonDatetime, IonIcon, IonInput, IonItem, IonLabel, IonTitle, IonToolbar } from '@ionic/react';
 import React from 'react';
 import { Goal, DurationTask, Task, CompletionRate } from '../goal';
 import { addOutline, closeOutline } from 'ionicons/icons';
 import TaskPane from './task-pane';
+import { formatDate } from '../progress';
 
 /**
  * Pane containing one goal
@@ -48,6 +49,21 @@ const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, insertT
         props.removeTask(task.id);
     }
 
+    function setStartDate(date: string) {
+        props.goal.startDate = formatDate(new Date(date));
+
+        props.update();
+    }
+
+    
+    function setEndDate(date: string) {
+        props.goal.endDate = formatDate(new Date(date));
+
+        props.update();
+    }
+
+    const maxDate = new Date(new Date().getFullYear() + 100, 11, 31);
+
     return (
         <IonCard>
             <IonCardHeader>
@@ -64,6 +80,16 @@ const GoalPane: React.FC<{ goal: Goal, removeGoal: (goal: Goal) => void, insertT
                 </IonToolbar>
             </IonCardHeader>
             <IonCardContent>
+                <IonItem>
+                    <IonLabel>Start Date</IonLabel>
+                    <IonDatetime displayFormat="YYYY-MM-DD" max={formatDate(maxDate)} 
+                    value={props.goal.startDate} onIonChange={e => setStartDate(e.detail.value!)} />
+                </IonItem>
+                <IonItem>
+                    <IonLabel>End Date</IonLabel>
+                    <IonDatetime displayFormat="YYYY-MM-DD" max={formatDate(maxDate)} 
+                    value={props.goal.endDate} onIonChange={e => setEndDate(e.detail.value!)} />
+                </IonItem>
                 {
                     props.goal.tasks.map((task: Task, index: number) => (
                         <TaskPane task={task} removeTask={removeTask} replaceTask={replaceTask} update={props.update} key={index} />

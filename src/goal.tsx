@@ -35,6 +35,8 @@ export interface CompletionTask {
  */
 export interface Goal {
     name: string;
+    startDate: string;
+    endDate: string;
     tasks: Array<DurationTask | CompletionTask>;
 }
 
