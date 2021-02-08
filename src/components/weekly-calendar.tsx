@@ -25,7 +25,7 @@ const WeeklyCalendar: React.FC<{ currentMonth: Date }> = props => {
                 dateEnd.setDate(dateEnd.getDate() + 6);
 
                 return (
-                    <IonRow>
+                    <IonRow key={dateStart.getTime()}>
                         <IonCol>
                             <IonCard className='calendar-card'>{formatDate(dateStart)} to {formatDate(dateEnd)}</IonCard>
                         </IonCol>

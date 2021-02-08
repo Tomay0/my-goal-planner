@@ -1,5 +1,5 @@
 import { warning } from 'ionicons/icons';
-import { GoalList } from './goal';
+import { CompletionRate, GoalList, isDurationTask } from './goal';
 
 export enum ProgressAchievement {
     NoData = 0,
@@ -8,28 +8,56 @@ export enum ProgressAchievement {
     Achieved = 3
 }
 
+export type TaskProgress = {
+    taskID: number, expected: number, actual: number
+}
+
 export function getDayProgress(date: Date, progressList: ProgressList, goalList: GoalList) {
     const roundedDate = new Date(formatDate(date));
+    const today = new Date(formatDate(new Date()));
 
-    // check if the day is in the progress list
-    for (const goal of goalList.goals) {
-
-        // outside of date range
-        if(roundedDate > new Date(goal.endDate) || roundedDate < new Date(goal.startDate)) return ProgressAchievement.NotAchieved
-    }
-
-
-    // current date
-    const currentDate = new Date();
-    if (formatDate(currentDate) == formatDate(date)) {
+    if (roundedDate.getTime() == today.getTime()) {
         return ProgressAchievement.InProgress;
     }
-    else if (currentDate < date) {
-        return ProgressAchievement.NoData;
+    else if (roundedDate < today) {
+
+        const taskProgress: Array<TaskProgress> = [];
+
+        // check if the day is in the progress list
+        for (const goal of goalList.goals) {
+
+            // this date is within the bounds of the goal
+            if (roundedDate <= new Date(goal.endDate) && roundedDate >= new Date(goal.startDate)) {
+                for (const task of goal.tasks) {
+                    if (task.completionRate == CompletionRate.Daily) {
+                        const progress = progressList[formatDate(date)]?.tasks[task.id];
+
+                        const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
+
+                        if (progress) {
+                            taskProgress.push({ taskID: task.id, expected, actual: progress });
+                        }
+                        else {
+                            taskProgress.push({ taskID: task.id, expected, actual: 0 });
+                        }
+                    }
+                }
+            }
+        }
+
+
+        if (taskProgress.length > 0) {
+            for (const task of taskProgress) {
+                if(task.actual < task.expected) {
+                    return ProgressAchievement.NotAchieved;
+                }
+            }
+            return ProgressAchievement.Achieved;
+        }
+
     }
-    else {
-        return ProgressAchievement.NoData;
-    }
+
+    return ProgressAchievement.NoData;
 }
 
 export function achievementColor(progressAchievement: ProgressAchievement) {

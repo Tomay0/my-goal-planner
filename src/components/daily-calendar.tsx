@@ -29,13 +29,13 @@ const DailyCalendar: React.FC<{ currentMonth: Date, progressList: ProgressList, 
             </IonRow>
 
             {Array.from(Array(6).keys()).map((week) => (
-                <IonRow>
+                <IonRow key={week}>
                     {
                         Array.from(Array(7).keys()).map((day) => {
                             const date = new Date(topLeftDate);
                             date.setDate(date.getDate() + week * 7 + day);
 
-                            return (<IonCol><IonCard color={achievementColor(getDayProgress(date, props.progressList, props.goalList))} className={
+                            return (<IonCol key={date.getTime()}><IonCard color={achievementColor(getDayProgress(date, props.progressList, props.goalList))} className={
                                 date.getMonth() == props.currentMonth.getMonth() ? 'calendar-card' : 'calendar-card different-month'}>
                                 {date.getDate()}
                             </IonCard>
