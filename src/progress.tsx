@@ -1,4 +1,4 @@
-import { warning } from 'ionicons/icons';
+import { todayOutline, warning } from 'ionicons/icons';
 import { CompletionRate, GoalList, isDurationTask } from './goal';
 
 export enum ProgressAchievement {
@@ -12,13 +12,81 @@ export type TaskProgress = {
     taskID: number, expected: number, actual: number
 }
 
+export function getWeekProgress(startDate: Date, progressList: ProgressList, goalList: GoalList) {
+    const roundedStartDate = new Date(formatDate(startDate));
+    const endDate = new Date(roundedStartDate);
+    endDate.setDate(endDate.getDate() + 6);
+    const today = new Date(formatDate(new Date()));
+
+    // current week
+    if (today.getTime() >= roundedStartDate.getTime() && today.getTime() <= endDate.getTime()) {
+        return ProgressAchievement.InProgress;
+    }
+    // previous week
+    else if (today.getTime() > roundedStartDate.getTime()) {
+
+        const taskProgress: Array<TaskProgress> = [];
+
+        for (const goal of goalList.goals) {
+            if (endDate <= new Date(goal.endDate) && roundedStartDate >= new Date(goal.startDate)) {
+                for (const task of goal.tasks) {
+                    if (task.completionRate == CompletionRate.Weekly) {
+                        let progress = 0;
+
+                        for (const day of Array.from(Array(7).keys())) {
+                            const date = new Date(roundedStartDate);
+                            date.setDate(date.getDate() + day);
+
+                            const thisDayProgress = progressList[formatDate(date)]?.tasks[task.id];
+
+                            if (thisDayProgress) {
+                                progress += thisDayProgress;
+                            }
+                        }
+
+                        // work out combined progress
+                        const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
+
+
+                        taskProgress.push({ taskID: task.id, expected, actual: progress });
+                    }
+                }
+            }
+        }
+
+
+        // check if there's uncompleted tasks in this week
+
+        if (taskProgress.length > 0) {
+            for (const task of taskProgress) {
+                if (task.actual < task.expected) {
+                    return ProgressAchievement.NotAchieved;
+                }
+            }
+            return ProgressAchievement.Achieved;
+        }
+
+    }
+
+    // future week - no data
+    return ProgressAchievement.NoData;
+}
+
+/**
+ * Obtain your progress on a particular day
+ * @param date date to check
+ * @param progressList 
+ * @param goalList 
+ */
 export function getDayProgress(date: Date, progressList: ProgressList, goalList: GoalList) {
     const roundedDate = new Date(formatDate(date));
     const today = new Date(formatDate(new Date()));
 
+    // current day
     if (roundedDate.getTime() == today.getTime()) {
         return ProgressAchievement.InProgress;
     }
+    // past day
     else if (roundedDate < today) {
 
         const taskProgress: Array<TaskProgress> = [];
@@ -45,10 +113,11 @@ export function getDayProgress(date: Date, progressList: ProgressList, goalList:
             }
         }
 
+        // check if there's uncompleted tasks in this week
 
         if (taskProgress.length > 0) {
             for (const task of taskProgress) {
-                if(task.actual < task.expected) {
+                if (task.actual < task.expected) {
                     return ProgressAchievement.NotAchieved;
                 }
             }
@@ -56,7 +125,7 @@ export function getDayProgress(date: Date, progressList: ProgressList, goalList:
         }
 
     }
-
+    // future day - no data
     return ProgressAchievement.NoData;
 }
 

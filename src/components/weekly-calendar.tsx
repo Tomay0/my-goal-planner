@@ -1,11 +1,12 @@
 import { IonCard, IonCol, IonGrid, IonRow } from '@ionic/react';
 import React from 'react';
-import { formatDate } from '../progress';
+import { GoalList } from '../goal';
+import { achievementColor, formatDate, getWeekProgress, ProgressList } from '../progress';
 
 import '../theme/calendar.css';
 
 
-const WeeklyCalendar: React.FC<{ currentMonth: Date }> = props => {
+const WeeklyCalendar: React.FC<{ currentMonth: Date, progressList: ProgressList, goalList: GoalList }> = props => {
     const startDate = new Date(props.currentMonth.getFullYear(), props.currentMonth.getMonth());
 
     let topLeftDate = startDate;
@@ -27,7 +28,8 @@ const WeeklyCalendar: React.FC<{ currentMonth: Date }> = props => {
                 return (
                     <IonRow key={dateStart.getTime()}>
                         <IonCol>
-                            <IonCard className='calendar-card'>{formatDate(dateStart)} to {formatDate(dateEnd)}</IonCard>
+                            <IonCard color={achievementColor(getWeekProgress(dateStart, props.progressList, props.goalList))}
+                            className='calendar-card'>{formatDate(dateStart)} to {formatDate(dateEnd)}</IonCard>
                         </IonCol>
                     </IonRow>
                 );
