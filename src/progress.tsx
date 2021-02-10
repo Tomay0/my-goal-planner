@@ -1,144 +1,174 @@
 import { todayOutline, warning } from 'ionicons/icons';
 import { CompletionRate, GoalList, isDurationTask } from './goal';
 
-export enum ProgressAchievement {
-    NoData = 0,
-    InProgress = 1,
-    NotAchieved = 2,
-    Achieved = 3
-}
-
 export type TaskProgress = {
     taskID: number, expected: number, actual: number
 }
 
-export function getWeekProgress(startDate: Date, progressList: ProgressList, goalList: GoalList) {
-    const roundedStartDate = new Date(formatDate(startDate));
-    const endDate = new Date(roundedStartDate);
-    endDate.setDate(endDate.getDate() + 6);
-    const today = new Date(formatDate(new Date()));
-
-    // current week
-    if (today.getTime() >= roundedStartDate.getTime() && today.getTime() <= endDate.getTime()) {
-        return ProgressAchievement.InProgress;
-    }
-    // previous week
-    else if (today.getTime() > roundedStartDate.getTime()) {
-
-        const taskProgress: Array<TaskProgress> = [];
-
-        for (const goal of goalList.goals) {
-            if (endDate <= new Date(goal.endDate) && roundedStartDate >= new Date(goal.startDate)) {
-                for (const task of goal.tasks) {
-                    if (task.completionRate == CompletionRate.Weekly) {
-                        let progress = 0;
-
-                        for (const day of Array.from(Array(7).keys())) {
-                            const date = new Date(roundedStartDate);
-                            date.setDate(date.getDate() + day);
-
-                            const thisDayProgress = progressList[formatDate(date)]?.tasks[task.id];
-
-                            if (thisDayProgress) {
-                                progress += thisDayProgress;
-                            }
-                        }
-
-                        // work out combined progress
-                        const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
-
-
-                        taskProgress.push({ taskID: task.id, expected, actual: progress });
-                    }
-                }
-            }
-        }
-
-
-        // check if there's uncompleted tasks in this week
-
-        if (taskProgress.length > 0) {
-            for (const task of taskProgress) {
-                if (task.actual < task.expected) {
-                    return ProgressAchievement.NotAchieved;
-                }
-            }
-            return ProgressAchievement.Achieved;
-        }
-
-    }
-
-    // future week - no data
-    return ProgressAchievement.NoData;
-}
 
 /**
- * Obtain your progress on a particular day
- * @param date date to check
+ * Get a list of tasks and their progress over a month
+ * @param startDate 
  * @param progressList 
  * @param goalList 
  */
-export function getDayProgress(date: Date, progressList: ProgressList, goalList: GoalList) {
-    const roundedDate = new Date(formatDate(date));
-    const today = new Date(formatDate(new Date()));
+export function getMonthTaskProgress(startDate: Date, progressList: ProgressList, goalList: GoalList) {
+    const roundedStartDate = new Date(formatDate(startDate));
+    const endDate = new Date(roundedStartDate);
+    endDate.setMonth(endDate.getMonth() + 1);
+    endDate.setDate(endDate.getDate() - 1);
 
-    // current day
-    if (roundedDate.getTime() == today.getTime()) {
-        return ProgressAchievement.InProgress;
+    const taskProgress: Array<TaskProgress> = [];
+
+    for (const goal of goalList.goals) {
+        if (endDate <= new Date(goal.endDate) && roundedStartDate >= new Date(goal.startDate)) {
+            for (const task of goal.tasks) {
+                if (task.completionRate == CompletionRate.Monthly) {
+                    let progress = 0;
+
+                    for (const day of Array.from(Array(endDate.getDate()).keys())) {
+                        const date = new Date(roundedStartDate);
+                        date.setDate(date.getDate() + day);
+                        const thisDayProgress = progressList[formatDate(date)]?.tasks[task.id];
+
+                        if (thisDayProgress) {
+                            progress += thisDayProgress;
+                        }
+                    }
+
+                    // work out combined progress
+                    const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
+
+
+                    taskProgress.push({ taskID: task.id, expected, actual: progress });
+                }
+            }
+        }
     }
-    // past day
-    else if (roundedDate < today) {
 
-        const taskProgress: Array<TaskProgress> = [];
+    return taskProgress;
 
-        // check if the day is in the progress list
-        for (const goal of goalList.goals) {
+}
 
-            // this date is within the bounds of the goal
-            if (roundedDate <= new Date(goal.endDate) && roundedDate >= new Date(goal.startDate)) {
-                for (const task of goal.tasks) {
-                    if (task.completionRate == CompletionRate.Daily) {
-                        const progress = progressList[formatDate(date)]?.tasks[task.id];
+/**
+ * Get a list of tasks and their progress over a week
+ * @param startDate 
+ * @param progressList 
+ * @param goalList 
+ */
+export function getWeekTaskProgress(startDate: Date, progressList: ProgressList, goalList: GoalList) {
+    const roundedStartDate = new Date(formatDate(startDate));
+    const endDate = new Date(roundedStartDate);
+    endDate.setDate(endDate.getDate() + 6);
 
-                        const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
+    const taskProgress: Array<TaskProgress> = [];
 
-                        if (progress) {
-                            taskProgress.push({ taskID: task.id, expected, actual: progress });
+    for (const goal of goalList.goals) {
+        if (endDate <= new Date(goal.endDate) && roundedStartDate >= new Date(goal.startDate)) {
+            for (const task of goal.tasks) {
+                if (task.completionRate == CompletionRate.Weekly) {
+                    let progress = 0;
+
+                    for (const day of Array.from(Array(7).keys())) {
+                        const date = new Date(roundedStartDate);
+                        date.setDate(date.getDate() + day);
+
+                        const thisDayProgress = progressList[formatDate(date)]?.tasks[task.id];
+
+                        if (thisDayProgress) {
+                            progress += thisDayProgress;
                         }
-                        else {
-                            taskProgress.push({ taskID: task.id, expected, actual: 0 });
-                        }
+                    }
+
+                    // work out combined progress
+                    const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
+
+
+                    taskProgress.push({ taskID: task.id, expected, actual: progress });
+                }
+            }
+        }
+    }
+
+    return taskProgress;
+
+}
+
+/**
+ * Get the list of tasks you have achieved progress on through a given day
+ * @param date date
+ * @param progressList 
+ * @param goalList 
+ */
+export function getDayTaskProgress(date: Date, progressList: ProgressList, goalList: GoalList) {
+    const roundedDate = new Date(formatDate(date));
+
+    const taskProgress: Array<TaskProgress> = [];
+
+    // check if the day is in the progress list
+    for (const goal of goalList.goals) {
+
+        // this date is within the bounds of the goal
+        if (roundedDate <= new Date(goal.endDate) && roundedDate >= new Date(goal.startDate)) {
+            for (const task of goal.tasks) {
+                if (task.completionRate == CompletionRate.Daily) {
+                    const progress = progressList[formatDate(date)]?.tasks[task.id];
+
+                    const expected = isDurationTask(task) ? task.targetDuration : task.targetCount;
+
+                    if (progress) {
+                        taskProgress.push({ taskID: task.id, expected, actual: progress });
+                    }
+                    else {
+                        taskProgress.push({ taskID: task.id, expected, actual: 0 });
                     }
                 }
             }
         }
-
-        // check if there's uncompleted tasks in this week
-
-        if (taskProgress.length > 0) {
-            for (const task of taskProgress) {
-                if (task.actual < task.expected) {
-                    return ProgressAchievement.NotAchieved;
-                }
-            }
-            return ProgressAchievement.Achieved;
-        }
-
     }
-    // future day - no data
-    return ProgressAchievement.NoData;
 }
 
-export function achievementColor(progressAchievement: ProgressAchievement) {
-    switch (progressAchievement) {
-        case ProgressAchievement.NoData:
-            return undefined
-        case ProgressAchievement.InProgress:
-            return "warning";
-        case ProgressAchievement.NotAchieved:
-            return "danger";
-        case ProgressAchievement.Achieved:
-            return "success";
+/**
+ * Get the color of a week/month/day
+ * @param startDate 
+ * @param endDate 
+ * @param progress 
+ */
+export function getColorOverall(startDate: Date, endDate: Date, progress: Array<TaskProgress>) {
+    const currentDate = new Date(formatDate(new Date()));
+    if (currentDate.getTime() < startDate.getTime() || progress.length == 0) {
+        return 'light';
+    } else if (currentDate.getTime() < endDate.getTime()) {
+        for (const task of progress) {
+            if (task.actual < task.expected) return 'warning';
+
+        }
+
+        return 'success';
+    } else {
+        for (const task of progress) {
+            if (task.actual < task.expected) return 'danger';
+
+        }
+
+        return 'success';
+    }
+}
+
+/**
+ * Get the color of a single task progress bar
+ * @param startDate 
+ * @param endDate 
+ * @param task 
+ */
+export function getColorSingle(startDate: Date, endDate: Date, task: TaskProgress) {
+    const currentDate = new Date(formatDate(new Date()));
+    if (currentDate.getTime() < startDate.getTime()) {
+        return 'light';
+    } else if (currentDate.getTime() < endDate.getTime()) {
+        return task.actual < task.expected ? 'warning' : 'success';
+    } else {
+        return task.actual < task.expected ? 'danger' : 'success';
     }
 }
 

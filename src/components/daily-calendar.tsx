@@ -1,7 +1,7 @@
 import { IonCard, IonCol, IonGrid, IonRow } from '@ionic/react';
 import React from 'react';
 import { GoalList } from '../goal';
-import { achievementColor, formatDate, getDayProgress, ProgressList } from '../progress';
+import { formatDate, ProgressList } from '../progress';
 
 import '../theme/calendar.css';
 
@@ -35,7 +35,7 @@ const DailyCalendar: React.FC<{ currentMonth: Date, progressList: ProgressList, 
                             const date = new Date(topLeftDate);
                             date.setDate(date.getDate() + week * 7 + day);
 
-                            return (<IonCol key={date.getTime()}><IonCard color={achievementColor(getDayProgress(date, props.progressList, props.goalList))} className={
+                            return (<IonCol key={date.getTime()}><IonCard className={
                                 date.getMonth() == props.currentMonth.getMonth() ? 'calendar-card' : 'calendar-card different-month'}>
                                 {date.getDate()}
                             </IonCard>

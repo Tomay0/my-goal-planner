@@ -59,6 +59,7 @@ const TaskPane: React.FC<{
         if (isCompletionTask(props.task)) {
             props.task.targetCount = targetAmount;
         }
+        props.update();
     }
 
     // change target duration
@@ -66,6 +67,7 @@ const TaskPane: React.FC<{
         if (isDurationTask(props.task)) {
             props.task.targetDuration = targetDuration;
         }
+        props.update();
     }
 
     return (

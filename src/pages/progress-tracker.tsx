@@ -81,7 +81,8 @@ class ProgressTracker extends React.Component<{
                         goalList={this.props.goalList} progressList={this.props.progressList} />
                     }
                     {
-                        this.state.period == 'monthly' && <MonthlyCalendar currentMonth={this.state.currentMonth} />
+                        this.state.period == 'monthly' && <MonthlyCalendar currentMonth={this.state.currentMonth}
+                        goalList={this.props.goalList} progressList={this.props.progressList} />
                     }
 
 
