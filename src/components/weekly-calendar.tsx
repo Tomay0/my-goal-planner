@@ -56,7 +56,7 @@ const WeeklyCalendar: React.FC<{ currentMonth: Date, progressList: ProgressList,
                                 </IonCardHeader>
                                 {openedWeek?.getTime() == dateStart.getTime() && (<IonCardContent>
                                     {
-                                        weekTaskProgress.length == 0 && "No tasks are assigned for this month."
+                                        weekTaskProgress.length == 0 && "No tasks are assigned for this week."
                                     }
                                     {
                                         weekTaskProgress.map((progress: TaskProgress) => {

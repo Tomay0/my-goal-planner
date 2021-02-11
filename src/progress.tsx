@@ -126,6 +126,8 @@ export function getDayTaskProgress(date: Date, progressList: ProgressList, goalL
             }
         }
     }
+
+    return taskProgress;
 }
 
 /**
@@ -135,10 +137,12 @@ export function getDayTaskProgress(date: Date, progressList: ProgressList, goalL
  * @param progress 
  */
 export function getColorOverall(startDate: Date, endDate: Date, progress: Array<TaskProgress>) {
+    const startDateRounded = new Date(formatDate(startDate));
+    const endDateRounded = new Date(formatDate(endDate));
     const currentDate = new Date(formatDate(new Date()));
-    if (currentDate.getTime() < startDate.getTime() || progress.length == 0) {
+    if (currentDate.getTime() < startDateRounded.getTime() || progress.length == 0) {
         return 'light';
-    } else if (currentDate.getTime() < endDate.getTime()) {
+    } else if (currentDate.getTime() <= endDateRounded.getTime()) {
         for (const task of progress) {
             if (task.actual < task.expected) return 'warning';
 

@@ -29,7 +29,7 @@ const MonthlyCalendar: React.FC<{ currentMonth: Date, progressList: ProgressList
                 </IonCardHeader>
                 <IonCardContent>
                     {
-                        monthTaskProgress.length == 0 && "No tasks are assigned for this week."
+                        monthTaskProgress.length == 0 && "No tasks are assigned for this month."
                     }
                     {
                         monthTaskProgress.map((progress: TaskProgress) => {

@@ -1,8 +1,7 @@
-.calendar-card {
-    padding: 10px;
-    margin: 0 !important;
-}
-
 .calendar-card.different-month {
     color: #ddd;
+}
+
+ion-col.calendar-card {
+    padding: 2px;
 }
