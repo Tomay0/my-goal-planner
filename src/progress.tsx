@@ -169,7 +169,7 @@ export function getColorSingle(startDate: Date, endDate: Date, task: TaskProgres
     const currentDate = new Date(formatDate(new Date()));
     if (currentDate.getTime() < startDate.getTime()) {
         return 'light';
-    } else if (currentDate.getTime() < endDate.getTime()) {
+    } else if (currentDate.getTime() <= endDate.getTime()) {
         return task.actual < task.expected ? 'warning' : 'success';
     } else {
         return task.actual < task.expected ? 'danger' : 'success';
