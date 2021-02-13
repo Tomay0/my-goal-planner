@@ -166,10 +166,12 @@ export function getColorOverall(startDate: Date, endDate: Date, progress: Array<
  * @param task 
  */
 export function getColorSingle(startDate: Date, endDate: Date, task: TaskProgress) {
+    const startDateRounded = new Date(formatDate(startDate));
+    const endDateRounded = new Date(formatDate(endDate));
     const currentDate = new Date(formatDate(new Date()));
-    if (currentDate.getTime() < startDate.getTime()) {
+    if (currentDate.getTime() < startDateRounded.getTime()) {
         return 'light';
-    } else if (currentDate.getTime() <= endDate.getTime()) {
+    } else if (currentDate.getTime() <= endDateRounded.getTime()) {
         return task.actual < task.expected ? 'warning' : 'success';
     } else {
         return task.actual < task.expected ? 'danger' : 'success';
